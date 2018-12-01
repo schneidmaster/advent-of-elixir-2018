@@ -1,21 +1,10 @@
 defmodule Frequency do
-  def reduce(lines) do
-    lines
-    |> Enum.reduce(
-      0,
-      fn x, acc ->
-        num = x |> Integer.parse |> elem(0)
-        acc + num
-      end
-    )
-  end
-
-  def find_repeat(lines, sum \\ 0, subtotals \\ %{}) do
+  def analyze(lines, first_total \\ nil, sum \\ 0, subtotals \\ %{}) do
     {sum, twice, subtotals} = iterate_frequencies(lines, sum, subtotals)
 
     case twice do
-      nil -> find_repeat(lines, sum, subtotals)
-      _   -> twice
+      nil -> analyze(lines, first_total || sum, sum, subtotals)
+      _   -> {first_total, twice}
     end
   end
 
@@ -29,10 +18,10 @@ defmodule Frequency do
         {twice, subtotals} =
           case twice == nil do
             false -> {twice, subtotals}
-            true ->
+            true  ->
               case Map.has_key?(subtotals, new_total) do
                 false -> {nil, Map.put(subtotals, new_total, true)}
-                true -> {new_total, subtotals}
+                true  -> {new_total, subtotals}
               end
           end
         {new_total, twice, subtotals}
@@ -41,10 +30,11 @@ defmodule Frequency do
   end
 end
 
-lines =
+{sum, twice} =
   File.read("input.txt")
   |> elem(1)
   |> String.split
+  |> Frequency.analyze
 
-IO.puts("Sum: #{Frequency.reduce(lines)}")
-IO.puts("Twice: #{Frequency.find_repeat(lines)}")
+IO.puts("Sum: #{sum}")
+IO.puts("Twice: #{twice}")
