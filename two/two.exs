@@ -39,30 +39,28 @@ defmodule Scanner do
     lines
     |> Enum.find_value(
       fn id ->
-        match =
-          lines
-          |> Enum.find(
-            fn second_id ->
-              id
-              |> Enum.with_index
-              |> Enum.reduce(
-                {false, 0},
-                fn {char, idx}, {exactly_one, count} ->
-                  case Enum.at(second_id, idx) == char do
-                    true  -> {exactly_one, count}
-                    false ->
-                      case count do
-                        0 -> {true, count + 1}
-                        _ -> {false, count + 1}
-                      end
-                  end
+        lines
+        |> Enum.find(
+          fn second_id ->
+            id
+            |> Enum.with_index
+            |> Enum.reduce(
+              {false, 0},
+              fn {char, idx}, {exactly_one, count} ->
+                case Enum.at(second_id, idx) == char do
+                  true  -> {exactly_one, count}
+                  false ->
+                    case count do
+                      0 -> {true, count + 1}
+                      _ -> {false, count + 1}
+                    end
                 end
-              )
-              |> elem(0)
-            end
-          )
-
-        case match do
+              end
+            )
+            |> elem(0)
+          end
+        )
+        |> case do
           nil -> nil
           second_id ->
             id
